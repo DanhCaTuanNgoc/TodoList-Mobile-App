@@ -11,9 +11,9 @@ const PORT = 3000
 const sqlite3 = require('sqlite3').verbose()
 const db = new sqlite3.Database('./todolist.db', (err) => {
    if (err) {
-      console.error('Could not connect to database', err)
+      console.error('> Could not connect to database', err)
    } else {
-      console.log('Connected to SQLite database')
+      console.log('> Connected to SQLite database')
    }
 })
 
@@ -51,7 +51,7 @@ app.use('/users', userRoutes)
 app.use('/tasks', taskRoutes)
 
 app.listen(PORT, () => {
-   console.log(`Server đang chạy trên http://192.168.1.6:${PORT}`)
+   console.log(`> Server is running at http://192.168.1.5:${PORT}`)
 })
 // app.listen(PORT, () => {
 //    console.log(`Server đang chạy trên http://localhost:8081:${PORT}`)

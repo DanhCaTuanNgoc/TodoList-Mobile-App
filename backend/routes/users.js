@@ -1,17 +1,8 @@
+const { default: AsyncStorage } = require('@react-native-async-storage/async-storage')
 const express = require('express')
 const router = express.Router()
 const sqlite3 = require('sqlite3').verbose()
 const db = new sqlite3.Database('./todolist.db')
-
-// // GET all users
-// router.get('/', (req, res) => {
-//    db.all('SELECT * FROM user', [], (err, rows) => {
-//       if (err) {
-//          return res.status(500).json({ error: 'An error occurred while fetching users.' })
-//       }
-//       res.json(rows)
-//    })
-// })
 
 // REGISTER
 router.post('/register', (req, res) => {

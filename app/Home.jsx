@@ -7,102 +7,159 @@ import {
    ActivityIndicator,
    FlatList,
 } from 'react-native'
-import Button from '../components/Button'
+import { Button, Input } from '@ant-design/react-native'
 import { COLORS, SIZES } from '@/constants'
 import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useSelector, useDispatch } from 'react-redux'
-import { addTask, fetchTasks, mergeTasks } from '../store/tasks/taskAction'
+import { addTask, fetchTasks, mergeTasks, deleteTask } from '../store/tasks/taskAction'
+import { Task } from '../components/index'
+import { ScrollView } from 'react-native-gesture-handler'
 
 function Home({ navigation }) {
-   const [inputValue, setInputValue] = useState('')
-   const [todos, setTodos] = useState([])
-   // const [uid, setUid] = useState(null)
    // lấy mảng tasks từ REDUX :
    const dispatch = useDispatch()
-   const { tasks, loading, error, uid } = useSelector((state) => state.taskState)
-   
+   const { tasks, completed, incompleted } = useSelector((state) => state.taskState)
+   const { uid, name } = useSelector((state) => state.userState)
+   const [inputValue, setInputValue] = useState('')
+   const [taskList, setTaskList] = useState([])
+   // const [completedTask, setCompletedTask] = useState([])
+   // const [incompletedTask, setIncompletedTask] = useState([])
+
    useEffect(() => {
-      const getUid = async () => {
-         try {
-            const userUuid = await AsyncStorage.getItem('UUID')
-            
-            if (uid && userUuid) {
-               try {
-                  await dispatch(mergeTasks(uid, userUuid))
-                  await AsyncStorage.removeItem('UUID')
-               } catch (err) {
-                  Alert.alert('ERROR MERGE TASKS : ', err.message)
-               }
-            } else if (uid) {
-               dispatch(fetchTasks(uid))
-               console.log('uid hoat dong')
-            } else if (userUuid) {
-               dispatch(fetchTasks(uid))
-               console.log('uuid hoat dong')
-            } else {
-               console.log('KO CO 2 LOAI ID !')
-            }
-         } catch (err) {
-            console.log('Error fetching userId from AsyncStorage:', err)
-            Alert.alert('Error', 'Failed to retrieve user ID.')
-         }
+      if (uid) {
+         getUser()
+      } else {
+         getGuestTask()
       }
-      getUid()
-   }, [])
+   }, [uid])
+
+   // New useEffect to update completed and incomplete tasks whenever taskList changes
+   // useEffect(() => {
+   //    setCompletedTask(taskList.filter((task) => task.completed === true))
+   //    setIncompletedTask(taskList.filter((task) => task.completed === false))
+   // }, [taskList])
+
+   const getUser = async () => {
+      if (uid) {
+         await dispatch(fetchTasks(uid))
+      }
+   }
+
+   const getGuestTask = async () => {
+      try {
+         const guestTask = await AsyncStorage.getItem('guestTask')
+         if (guestTask) {
+            setTaskList(JSON.parse(guestTask))
+         } else {
+            await AsyncStorage.setItem('guestTask', JSON.stringify([]))
+            setTaskList([])
+         }
+      } catch (error) {
+         Alert.alert('Error', 'Failed to fetch guest tasks.')
+      }
+   }
 
    const handleAddTask = async () => {
       if (inputValue.trim() !== '') {
          if (uid) {
-            dispatch(addTask(uid, inputValue))
+            await dispatch(addTask(uid, inputValue))
                .then(() => {
-                  setInputValue('') // Clear input after adding
-                  // Alert.alert('Success', 'Task added successfully.')
+                  setInputValue('')
+                  Alert.alert('Success', 'Task added successfully.')
                })
                .catch((err) => {
                   console.log('Error adding task:', err)
                   Alert.alert('Error', 'Failed to add task.')
                })
+         } else {
+            const newTask = {
+               title: inputValue,
+               completed: 0,
+               created_at: new Date().getTime(),
+            }
+            const existingTasks = await AsyncStorage.getItem('guestTask')
+            let tasksArray = []
+            if (existingTasks !== null && existingTasks !== undefined) {
+               tasksArray = JSON.parse(existingTasks)
+            }
+            // const tasksArray = existingTasks ? JSON.parse(existingTasks) : []
+            tasksArray.push(newTask) // Thêm tác vụ mới vào danh sách hiện có
+            await AsyncStorage.setItem('guestTask', JSON.stringify(tasksArray))
+            setTaskList(tasksArray) // Cập nhật trạng thái với danh sách mới
+            setInputValue('') // Xóa input sau khi thêm tác vụ
+            Alert.alert('Success', 'Task added successfully as guest.')
          }
       } else {
          Alert.alert('Error', 'Task title cannot be empty.')
-         return
       }
    }
 
-   // if (loading) {
-   //    return (
-   //       <SafeAreaView>
-   //          <ActivityIndicator size="large" color="#0000ff" />
-   //       </SafeAreaView>
-   //    )
-   // }
+   const handleDelete = async (id) => {
+      if (uid !== undefined && id !== undefined) {
+         try {
+            await dispatch(deleteTask(uid, id))
+         } catch (error) {
+            console.log('Delete errror :', error.message)
+         }
+      }
+   }
 
    return (
-      <SafeAreaView>
+      <SafeAreaView style={{ flex: 1 }}>
          <View style={styles.container}>
             <Text style={styles.title}>Tasks</Text>
-            <Text style={styles.title}>Xin chào : {uid}</Text>
-            <TextInput
-               style={styles.input}
-               placeholder="task..."
-               value={inputValue}
-               onChangeText={setInputValue}
-            />
-            <Button title="Add Task" onPress={handleAddTask} />
-            {tasks ? (
-               <FlatList
-                  data={tasks}
-                  key={(item) => item.id}
-                  renderItem={({ item }) => (
-                     <Text style={styles.taskItem}>{item.title}</Text>
-                  )}
+            <Text>Xin chào : {name}</Text>
+            <View style={styles.inputContainer}>
+               <TextInput
+                  style={styles.input}
+                  placeholder="task..."
+                  value={inputValue}
+                  onChangeText={setInputValue}
                />
-            ) : (
-               <Text>ko co task nao</Text>
-            )}
+               <Button
+                  onPress={handleAddTask}
+                  size="medium"
+                  style={styles.btn}
+                  textStyle={{ color: 'white' }}
+               >
+                  Add Task
+               </Button>
+            </View>
+            <ScrollView style={styles.taskContainer}>
+               <View>
+                  <Text>Chưa hoàn thành</Text>
+                  {incompleted.length > 0 ? (
+                     <FlatList
+                        data={incompleted}
+                        key={(item) => item.id}
+                        renderItem={({ item }) => (
+                           <Task info={item} onDelete={handleDelete} />
+                        )}
+                        style={styles.taskContainer}
+                     />
+                  ) : (
+                     <Text>Trống</Text>
+                  )}
+               </View>
+               <View>
+                  <Text>Đã hoàn thành</Text>
+                  {completed.length > 0 ? (
+                     <FlatList
+                        data={completed}
+                        key={(item) => item.id.toString()}
+                        renderItem={({ item }) => (
+                           <Task info={item} onDelete={handleDelete} />
+                        )}
+                        style={styles.taskContainer}
+                     />
+                  ) : (
+                     <Text>Trống</Text>
+                  )}
+               </View>
+            </ScrollView>
          </View>
       </SafeAreaView>
    )
@@ -112,20 +169,32 @@ export default Home
 
 const styles = StyleSheet.create({
    container: {
+      flex: 1,
+      flexDirection: 'column',
+      alignItems: 'center',
       paddingHorizontal: 10,
+   },
+   taskContainer: {
+      marginVertical: 5, // Add some space between tasks
+      paddingHorizontal: 10,
+      width: '100%',
+   },
+   inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SIZES.padding,
+      marginVertical: 5, // Add some space between tasks
+      paddingHorizontal: 10,
+      width: '100%',
    },
    input: {
       backgroundColor: COLORS.white,
       padding: SIZES.padding,
       borderColor: 'black',
-      borderWidth: 1,
+      borderWidth: 0.5,
       width: '80%',
-   },
-   taskContainer: {
-      flexDirection: 'row', // Align text and icon in a row
-      alignItems: 'center', // Center vertically
-      justifyContent: 'space-between', // Space out the text and icon
-      marginVertical: 5, // Add some space between tasks
+      marginBottom: 15,
+      borderRadius: 4,
    },
    taskText: {
       flex: 1, // Allow text to take available space
@@ -144,5 +213,11 @@ const styles = StyleSheet.create({
    },
    error: {
       color: 'red',
+   },
+   btn: {
+      width: '20%',
+      height: '80%',
+      marginBottom: 15,
+      backgroundColor: '#FF5252',
    },
 })

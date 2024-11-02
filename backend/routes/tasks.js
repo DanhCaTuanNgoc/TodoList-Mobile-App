@@ -19,13 +19,21 @@ router.post('/add', (req, res) => {
             .json({ error: 'An error occurred while adding the task.' })
       }
 
-      const newTask = {
+      if (this.lastID === undefined) {
+         console.error(
+            'Error: lastID is undefined. Check the database schema and connection.',
+         )
+         return res
+            .status(500)
+            .json({ error: 'Unable to retrieve the last inserted ID.' })
+      }
+
+      res.status(201).json({
+         id: this.lastID,
          title: title,
          completed: 0,
          created_at: new Date().toISOString(),
-      }
-
-      res.status(201).json(newTask)
+      })
    })
 })
 
@@ -68,3 +76,45 @@ router.post('/merge', (req, res) => {
 })
 
 module.exports = router
+
+// delete
+router.delete('/delete', (req, res) => {
+   const { uid, id } = req.body
+
+   if (!uid || !id) {
+      return res.status(400).json({ error: 'Missing uid or id in request' })
+   }
+
+   const sql = 'DELETE FROM task WHERE user_id = ? AND id = ?'
+   db.run(sql, [uid, id], (err) => {
+      if (err) {
+         console.error('Database error:', err) // Log the error for debugging
+         return res
+            .status(500)
+            .json({ error: 'An error occurred while deleting the task' })
+      }
+      return res.status(200).json({ uid, id })
+   })
+})
+
+router.post('/completed', (req, res) => {
+   const { uid, id } = req.body
+   const sql = 'UPDATE task SET completed = 1 WHERE user_id = ? AND id = ?'
+   db.run(sql, [uid, id], (err) => {
+      if (err) {
+         return res.status(500).json({ err: 'An error occurred while merge tasks' })
+      }
+      return res.status(201).json({ uid, id })
+   })
+})
+
+router.post('/recompleted', (req, res) => {
+   const { uid, id } = req.body
+   const sql = 'UPDATE task SET completed = 0 WHERE user_id = ? AND id = ?'
+   db.run(sql, [uid, id], (err) => {
+      if (err) {
+         return res.status(500).json({ err: 'An error occurred while merge tasks' })
+      }
+      return res.status(201).json({ uid, id })
+   })
+})

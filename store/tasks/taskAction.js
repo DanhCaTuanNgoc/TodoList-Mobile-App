@@ -1,9 +1,15 @@
-import { setLoading, setError, addTaskSuccess, fetchTasksSuccess } from './taskReducer'
+import {
+   setLoading,
+   setError,
+   addTaskSuccess,
+   fetchTasksSuccess,
+   deleteTaskSuccess,
+} from './taskReducer'
+import API_BASE_URL from '../IPv4'
 
 export const addTask = (uid, title) => async (dispatch) => {
-   dispatch(setLoading())
    try {
-      const response = await fetch('http://192.168.1.6:3000/tasks/add', {
+      const response = await fetch(`${API_BASE_URL}/tasks/add`, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ uid, title }),
@@ -12,18 +18,17 @@ export const addTask = (uid, title) => async (dispatch) => {
          throw new Error('Network response was not ok')
       }
       const data = await response.json()
-      dispatch(addTaskSuccess(data))
-      return Promise.resolve()
+      console.log(data)
+      await dispatch(addTaskSuccess(data))
    } catch (error) {
       dispatch(setError('Error adding task'))
-      return Promise.reject(error)
    }
 }
 
 export const fetchTasks = (uid) => async (dispatch) => {
    try {
       // dấu `` dùng để chứa tham số
-      const response = await fetch(`http://192.168.1.6:3000/tasks/fetch/${uid}`, {
+      const response = await fetch(`${API_BASE_URL}/tasks/fetch/${uid}`, {
          method: 'GET',
          headers: { 'Content-Type': 'application/json' },
       })
@@ -31,17 +36,15 @@ export const fetchTasks = (uid) => async (dispatch) => {
          throw new Error('Network response was not ok')
       }
       const data = await response.json()
-      dispatch(fetchTasksSuccess(data.tasks))
-      return Promise.resolve()
+      await dispatch(fetchTasksSuccess(data.tasks))
    } catch (error) {
       dispatch(setError('Error fetch tasks'))
-      return Promise.reject(error)
    }
 }
 
 export const mergeTasks = (uid, uuid) => async (dispatch) => {
    try {
-      const response = await fetch(`http://192.168.1.6:3000/tasks/merge`, {
+      const response = await fetch(`${API_BASE_URL}/tasks/merge`, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ uid, uuid }),
@@ -50,13 +53,61 @@ export const mergeTasks = (uid, uuid) => async (dispatch) => {
          throw new Error('Network response was not ok')
       }
       const data = response.json()
+
       //fetch task ra luoon
       if (data.uid) {
-         console.log(typeof data.uid)
-         fetchTasks(data.uid)
+         fetchTasksSuccess(data.uid)
       }
-      return Promise.resolve()
    } catch (error) {
-      return Promise.reject()
+      console.log('ERPOR :', error.message)
+   }
+}
+
+export const deleteTask = (uid, id) => async (dispatch) => {
+   try {
+      const response = await fetch(`${API_BASE_URL}/tasks/delete`, {
+         method: 'DELETE',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ uid, id }),
+      })
+
+      if (!response.ok) {
+         throw new Error('Network response was not ok')
+      }
+
+      const data = await response.json()
+      await dispatch(deleteTaskSuccess(data.id))
+   } catch (err) {
+      console.error('ERROR:', err.message)
+   }
+}
+
+export const completeTask = (uid, id) => async (dispatch) => {
+   try {
+      const response = await fetch(`${API_BASE_URL}/tasks/completed`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ uid, id }),
+      })
+      if (!response.ok) {
+         throw new Error('Network response was not ok')
+      }
+   } catch (err) {
+      console.error('ERROR:', err.message)
+   }
+}
+
+export const recompleteTask = (uid, id) => async (dispatch) => {
+   try {
+      const response = await fetch(`${API_BASE_URL}/tasks/recompleted`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ uid, id }),
+      })
+      if (!response.ok) {
+         throw new Error('Network response was not ok')
+      }
+   } catch (err) {
+      console.error('ERROR:', err.message)
    }
 }

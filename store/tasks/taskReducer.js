@@ -3,6 +3,8 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
    tasks: [],
+   completed: [],
+   incompleted: [],
    loading: false,
    error: null,
 }
@@ -19,17 +21,22 @@ const taskSlice = createSlice({
          state.error = action.payload
       },
       addTaskSuccess: (state, action) => {
-         console.log('addTaskSuccess payload:', action.payload)
          state.loading = false
          state.tasks.push(action.payload)
+         state.completed = state.tasks.filter((index) => index.completed == true)
+         state.incompleted = state.tasks.filter((index) => index.completed == false)
       },
       fetchTasksSuccess: (state, action) => {
          state.loading = false
          state.tasks = action.payload
+         state.completed = action.payload.filter((index) => index.completed == true)
+         state.incompleted = action.payload.filter((index) => index.completed == false)
       },
-      deleteTask: (state, action) => {
+      deleteTaskSuccess: (state, action) => {
          state.loading = false
-         state.tasks = state.tasks.filter((task) => task.id !== action.payload)
+         state.tasks = state.tasks.filter((task) => task.id !== parseInt(action.payload))
+         state.completed = state.tasks.filter((task) => task.completed == true)
+         state.incompleted = state.tasks.filter((index) => index.completed == false)
       },
       updateTask: (state, action) => {
          state.loading = false
@@ -40,6 +47,8 @@ const taskSlice = createSlice({
       },
       clearTasks: (state) => {
          state.tasks = []
+         state.completed = []
+         state.incompleted = []
       },
    },
 })
@@ -50,7 +59,7 @@ export const {
    addTaskSuccess,
    fetchTasuccess,
    fetchTasksSuccess,
-   deleteTask,
+   deleteTaskSuccess,
    updateTask,
    clearTasks,
 } = taskSlice.actions

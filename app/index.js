@@ -3,6 +3,6 @@ import Welcome from './Welcome'
 import User from './User'
 import Register from './Register'
 import Login from './Login'
-import Guest from './Guest'
+import Calendar from './Calendar'
 
-export { Welcome, Home, User, Register, Login, Guest }
+export { Welcome, Home, User, Register, Login, Calendar }

@@ -5,6 +5,9 @@ import { useState } from 'react'
 import { COLORS, SIZES } from '@/constants'
 import { userRegister } from '@/store/user/userAction'
 import { useDispatch } from 'react-redux'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { addTask } from '@/store/tasks/taskAction'
+
 function Register({ navigation }) {
    const [user_name, setUserName] = useState('')
    const [email, setEmail] = useState('')
@@ -12,16 +15,18 @@ function Register({ navigation }) {
    const dispatch = useDispatch()
 
    const handleRegister = async () => {
-      if (email.trim() != '' && password.trim() != '' && user_name.trim() != '') {
+      if (email.trim() !== '' && password.trim() !== '' && user_name.trim() !== '') {
          try {
-            await dispatch(userRegister(user_name, email, password))
-            Alert.alert('Registration Successful', `User ID: ${data.id}`)
+            const data = await dispatch(
+               userRegister(user_name.trim(), email.trim(), password.trim()),
+            )
             setUserName('')
-            setEmail('')
-            setPassword('')
-            navigation.navigate('Login')
+               setEmail('')
+               setPassword('')
+               navigation.navigate('Login')
+            
          } catch (err) {
-            Alert.alert('Error', err.message)
+            Alert.alert('Error', err.message || 'Registration failed.')
          }
       } else {
          Alert.alert('Validation Error', 'Please fill all fields')
@@ -63,7 +68,9 @@ const styles = StyleSheet.create({
       backgroundColor: COLORS.white,
       padding: SIZES.padding,
       borderColor: 'black',
-      borderWidth: 1,
+      borderWidth: 0.5,
       width: '80%',
+      marginBottom: 15,
+      borderRadius: 4,
    },
 })

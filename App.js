@@ -4,11 +4,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Ionicons } from '@expo/vector-icons'
-import { PersistGate } from 'redux-persist/integration/react'
-import { Welcome, Home, User, Login, Register, Guest } from './app/'
+import { Welcome, Home, User, Login, Register, Calendar } from './app/'
 import { Provider } from 'react-redux'
 import store from './store/store'
-import { ActivityIndicator } from 'react-native'
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 
@@ -25,6 +23,8 @@ const MainTab = () => {
                   iconName = focused ? 'home' : 'home-outline'
                } else if (route.name === 'User') {
                   iconName = focused ? 'person' : 'person-outline'
+               } else if (route.name === 'Calendar') {
+                  iconName = focused ? 'calendar' : 'calendar-outline'
                }
 
                return <Ionicons name={iconName} size={size} color={color} />
@@ -34,6 +34,7 @@ const MainTab = () => {
          })}
       >
          <Tab.Screen name="Home" component={Home} />
+         <Tab.Screen name="Calendar" component={Calendar} />
          <Tab.Screen name="User" component={User} />
       </Tab.Navigator>
    )
@@ -49,7 +50,11 @@ export default function App() {
                   initialRouteName="Welcome"
                >
                   <Stack.Screen name="Welcome" component={Welcome} />
-                  <Stack.Screen name="Login" component={Login} />
+                  <Stack.Screen
+                     name="Login"
+                     component={Login}
+                     options={{ headerShown: false }}
+                  />
                   <Stack.Screen name="Register" component={Register} />
                   <Stack.Screen
                      name="MainTab"

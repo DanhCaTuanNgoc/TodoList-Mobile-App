@@ -3,6 +3,8 @@ const bodyParse = require('body-parser')
 const cors = require('cors')
 const userRoutes = require('./routes/users')
 const taskRoutes = require('./routes/tasks')
+const eventRoutes = require('./routes/events')
+
 //INIT
 const app = express()
 const PORT = 3000
@@ -26,10 +28,9 @@ db.serialize(() => {
             completed INTEGER DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-    `)
-
-   db.run(
-      `
+    `),
+      db.run(
+         `
         CREATE TABLE IF NOT EXISTS user (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_name VARCHAR(100) UNIQUE,
@@ -38,7 +39,19 @@ db.serialize(() => {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `,
-   )
+      ),
+      db.run(
+         `
+        CREATE TABLE IF NOT EXISTS event (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            title VARCHAR(1000) NOT NULL,
+            start_at DATE,
+            time_at TIME,
+            notification_time REAL
+        )
+    `,
+      )
 })
 
 //MIDDLEWARE
@@ -46,9 +59,9 @@ app.use(cors())
 app.use(express.json())
 
 //ROUTES
-
 app.use('/users', userRoutes)
 app.use('/tasks', taskRoutes)
+app.use('/events', eventRoutes)
 
 app.listen(PORT, () => {
    console.log(`> Server is running at http://192.168.1.5:${PORT}`)

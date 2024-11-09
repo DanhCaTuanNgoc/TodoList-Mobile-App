@@ -3,52 +3,86 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons' // Cần cài đặt expo-vector-icons nếu chưa có
 import { completeTask, fetchTasks, recompleteTask } from '@/store/tasks/taskAction'
 import { useDispatch, useSelector } from 'react-redux'
+import { useTheme } from '../constants/ThemeContext'
+import { memo } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Task = ({ info, onDelete }) => {
    const [completed, setCompleted] = useState(info.completed)
    const { uid } = useSelector((state) => state.userState)
    const dispatch = useDispatch()
 
-   // Hàm để đánh dấu đã hoàn thành
+   const { theme } = useTheme()
+   const backgroundColor = theme?.backgroundColor || '#ffffff'
+   const backgroundContent = theme?.backgroundContent || '#ffff'
+   const textColor = theme?.textColor || '#000000'
+   const primaryColor = theme?.primaryColor || '#ff5252'
+
    const toggleComplete = async () => {
-      if (completed == 0 && uid !== undefined && info.id !== undefined) {
-         try {
-            await dispatch(completeTask(uid, info.id))
-            await dispatch(fetchTasks(uid))
-         } catch (error) {
-            console.log('Error : ', error.message)
+      if (uid) {
+         if (info.completed == false && info.id !== undefined) {
+            try {
+               await dispatch(completeTask(uid, info.id))
+               await dispatch(fetchTasks(uid))
+               setCompleted(!completed)
+            } catch (error) {
+               console.log('Error : ', error.message)
+            }
+         } else {
+            try {
+               await dispatch(recompleteTask(uid, info.id))
+               await dispatch(fetchTasks(uid))
+               setCompleted(!completed)
+            } catch (error) {
+               console.log('Error : ', error.message)
+            }
          }
       } else {
          try {
-            await dispatch(recompleteTask(uid, info.id))
-            await dispatch(fetchTasks(uid))
+            const existingTasks = await AsyncStorage.getItem('guestTask')
+            const tasksArray = existingTasks ? JSON.parse(existingTasks) : []
+            
+            const updatedTasks = tasksArray.map(task => {
+               if (task.id === info.id) {
+                  return {...task, completed: !task.completed}
+               }
+               return task
+            })
+
+            await AsyncStorage.setItem('guestTask', JSON.stringify(updatedTasks))
+            setCompleted(!completed)
          } catch (error) {
-            console.log('Error : ', error.message)
+            console.error('Error updating guest task:', error)
          }
       }
-      setCompleted(!completed)
    }
 
    return (
-      <View style={styles.taskContainer}>
+      <View style={[styles.taskContainer, { backgroundColor: backgroundContent }]}>
          {/* Nút hình tròn kiểu radio */}
          <TouchableOpacity onPress={toggleComplete} style={styles.radioButton}>
             {completed ? (
-               <Ionicons name="radio-button-on" size={20} color="#FF5252" />
+               <Ionicons name="radio-button-on" size={20} color={primaryColor} />
             ) : (
                <Ionicons name="radio-button-off" size={20} color="#A9A9A9" />
             )}
          </TouchableOpacity>
          {/* Nhiệm vụ */}
          <TouchableOpacity onPress={toggleComplete} style={styles.taskContent}>
-            <Text style={[styles.taskText, completed && styles.completedText]}>
+            <Text
+               style={[
+                  styles.taskText,
+                  { color: textColor },
+                  completed && styles.completedText,
+               ]}
+            >
                {info.title}
             </Text>
          </TouchableOpacity>
 
          {/* Nút xóa */}
          <TouchableOpacity onPress={() => onDelete(info.id)} style={styles.deleteButton}>
-            <Ionicons name="trash" size={24} color="#FF5252" />
+            <Ionicons name="trash" size={24} color={primaryColor} />
          </TouchableOpacity>
       </View>
    )
@@ -58,7 +92,6 @@ const styles = StyleSheet.create({
    taskContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: '#fff',
       padding: 15,
       marginVertical: 8,
       borderRadius: 8,
@@ -74,7 +107,6 @@ const styles = StyleSheet.create({
    },
    taskText: {
       fontSize: 16,
-      color: '#333',
    },
    completedText: {
       textDecorationLine: 'line-through',

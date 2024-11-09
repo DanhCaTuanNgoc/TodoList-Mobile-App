@@ -10,7 +10,7 @@ const initialState = {
 }
 
 const taskSlice = createSlice({
-   name: 'tasssks',
+   name: 'tasks',
    initialState,
    reducers: {
       setLoading: (state) => {
@@ -63,4 +63,5 @@ export const {
    updateTask,
    clearTasks,
 } = taskSlice.actions
+
 export default taskSlice.reducer

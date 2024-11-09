@@ -1,14 +1,13 @@
-import { View, Text, SafeAreaView, StyleSheet } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useEffect } from 'react'
-import Button from '@ant-design/react-native/lib/button'
+import { useTheme } from '../constants/ThemeContext'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import uuid from 'react-native-uuid'
 import { useDispatch } from 'react-redux'
-import { userLogin } from '@/store/user/userAction'
-import { setUUID, setUID, setName } from '@/store/user/userReducer'
+import { setUID, setName } from '@/store/user/userReducer'
 
 const Welcome = ({ navigation }) => {
    const dispatch = useDispatch()
+   const { theme, toggleTheme } = useTheme() // Use theme and toggleTheme
 
    useEffect(() => {
       const getUser = async () => {
@@ -16,7 +15,7 @@ const Welcome = ({ navigation }) => {
          const userName = await AsyncStorage.getItem('userName')
          const guest = await AsyncStorage.getItem('guestActive')
          if (uid) {
-            await dispatch(setUID(uid))
+            await dispatch(setUID(parseInt(uid)))
             await dispatch(setName(userName))
             navigation.navigate('MainTab')
          } else if (guest) {
@@ -27,43 +26,71 @@ const Welcome = ({ navigation }) => {
    }, [])
 
    const handleGuest = async () => {
-      await AsyncStorage.setItem('guestActive')
+      await AsyncStorage.setItem('guestActive', 'true')
       navigation.navigate('MainTab')
    }
+
+   const backgroundColor = '#ffffff'
+   const textColor = '#000000'
+   const buttonColor = '#FF5252'
+
    return (
-      <SafeAreaView style={{ flex: 1 }}>
-         <View style={styles.container}>
-            <Text>Welcome to TodoList</Text>
-            <Text>Let's manage your task</Text>
-            <Button
-               type="primary"
-               onPress={() => navigation.navigate('Login')}
-               style={styles.btn}
-            >
-               Login
-            </Button>
-            <Button
-               type="primary"
-               onPress={() => navigation.navigate('Register')}
-               style={styles.btn}
-            >
-               Register
-            </Button>
-            <Button type="primary" onPress={handleGuest} style={styles.btn}>
-               As a guest
-            </Button>
-         </View>
+      <SafeAreaView style={[styles.container, { backgroundColor }]}>
+         <Text style={[styles.title, { color: textColor }]}>Welcome to TodoList</Text>
+         <Text style={[styles.subtitle, { color: textColor }]}>
+            Let's manage your task
+         </Text>
+
+         <TouchableOpacity
+            onPress={() => navigation.navigate('Login')}
+            style={[styles.btn, { backgroundColor: buttonColor }]}
+         >
+            <Text style={styles.btnText}>Login</Text>
+         </TouchableOpacity>
+
+         <TouchableOpacity
+            onPress={() => navigation.navigate('Register')}
+            style={[styles.btn, { backgroundColor: buttonColor }]}
+         >
+            <Text style={styles.btnText}>Register</Text>
+         </TouchableOpacity>
+
+         <TouchableOpacity
+            onPress={handleGuest}
+            style={[styles.btn, { backgroundColor: buttonColor }]}
+         >
+            <Text style={styles.btnText}>As a guest</Text>
+         </TouchableOpacity>
       </SafeAreaView>
    )
 }
 
-export default Welcome
-
 const styles = StyleSheet.create({
    container: {
       flex: 1,
-      flexDirection: 'column',
       alignItems: 'center',
+      justifyContent: 'center',
       paddingHorizontal: 10,
    },
+   title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+   },
+   subtitle: {
+      fontSize: 16,
+   },
+   btn: {
+      width: '80%',
+      paddingVertical: 12,
+      borderRadius: 8,
+      marginVertical: 10,
+      alignItems: 'center',
+   },
+   btnText: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: '600',
+   },
 })
+
+export default Welcome

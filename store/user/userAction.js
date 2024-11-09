@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { setName, setUID } from './userReducer'
 import API_BASE_URL from '../IPv4'
 import { addTask } from '../tasks/taskAction'
+import { Alert } from 'react-native'
 
 export const userLogin = (email, password) => async (dispatch) => {
    try {
@@ -17,7 +18,7 @@ export const userLogin = (email, password) => async (dispatch) => {
          throw new Error('Network was not ok')
       }
 
-      await AsyncStorage.setItem('userId', data.id)
+      await AsyncStorage.setItem('userId', data.id.toString())
       await AsyncStorage.setItem('userName', data.user_name)
       await dispatch(setUID(data.id))
       await dispatch(setName(data.user_name))
@@ -45,9 +46,7 @@ export const userRegister = (user_name, email, password) => async (dispatch) => 
             if (tasks.length > 0) {
                await Promise.all(
                   tasks.map(async (task) => {
-                     console.log('Adding task:', task.title)
                      const result = await dispatch(addTask(data.id, task.title))
-                     console.log('Add task result:', result) // Log kết quả
                   }),
                )
                await AsyncStorage.removeItem('guestTask')

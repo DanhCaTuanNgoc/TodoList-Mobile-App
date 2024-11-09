@@ -1,50 +1,138 @@
-# Welcome to your Expo app 👋
+# 📱 TodoList Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern and feature-rich task management mobile application built with React Native and Expo, allowing users to manage their daily tasks and schedule events efficiently.
 
-## Get started
+## 🚀 Technology Stack
 
-1. Install dependencies
+### Frontend
+
+-  **Framework:** React Native
+-  **Development Platform:** Expo
+-  **State Management:** Redux Toolkit
+-  **Navigation:** React Navigation v6
+-  **Local Storage:** AsyncStorage
+-  **UI Components:** React Native Paper
+-  **Icons:** Expo Vector Icons
+
+### Backend
+
+-  **Server:** Express.js
+-  **Database:** SQLite3
+-  **API:** RESTful API
+
+## ✨ Key Features
+
+### Task Management
+
+-  ✅ Create, read, update and delete tasks
+-  🔄 Mark tasks as complete/incomplete
+-  🗂️ Filter tasks by completion status
+
+### Event Calendar
+
+-  📅 Calendar integration
+-  ⏰ Event scheduling with notifications
+-  🗑️ Event management (add/delete)
+-  🕒 Time-based event organization
+
+### User Management
+
+-  👤 User authentication (Register/Login)
+-  👻 Guest mode support
+-  🔄 Data synchronization between guest and user accounts when user sign up
+-  🌙 Dark/Light theme support
+
+## 🛠️ Installation & Setup
+
+1. Clone the repository
+
+   ```bash
+   git clone [your-repo-link]
+   ```
+
+2. Install dependencies
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Start the backend server
 
    ```bash
-    npx expo start
+   cd backend
+   node server.js
    ```
 
-In the output, you'll find options to open the app in a
+4. Start the Expo development server
+   ```bash
+   npx expo start
+   ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 📱 Project Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+project/
+├── app/                  # Main application screens
+│   ├── Home.jsx         # Task management screen
+│   ├── CalendarScreen.jsx # Event calendar screen
+│   ├── Login.jsx        # User authentication
+│   └── Register.jsx     # User registration
+├── components/          # Reusable components
+├── constants/          # Theme and configuration
+├── store/             # Redux store setup
+│   ├── tasks/         # Task-related actions & reducers
+│   ├── events/        # Event-related actions & reducers
+│   └── user/          # User authentication state
+└── backend/           # Express.js server
+    └── routes/        # API endpoints
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🔐 Database Schema
 
-## Learn more
+### Users Table
 
-To learn more about developing your project with Expo, look at the following resources:
+-  id (PRIMARY KEY)
+-  user_name
+-  email
+-  password
+-  created_at
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Tasks Table
 
-## Join the community
+-  id (PRIMARY KEY)
+-  user_id (FOREIGN KEY)
+-  title
+-  completed
+-  created_at
 
-Join our community of developers creating universal apps.
+### Events Table
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+-  id (PRIMARY KEY)
+-  user_id (FOREIGN KEY)
+-  title
+-  date_at
+-  time_at
+-  notification_time_advance
+
+## 👨‍💻 Development Features
+
+-  Clean and modular code architecture
+-  Redux for state management
+-  Theme customization support
+-  Secure user authentication
+-  Efficient data synchronization
+-  Responsive UI design
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 📧 Contact
+
+-  Email: [Your Email]
+-  LinkedIn: [Your LinkedIn]
+-  Portfolio: [Your Portfolio]

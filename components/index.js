@@ -1,3 +1,4 @@
 import Task from './Task'
+import Event from './Event'
 
-export { Task }
+export { Task, Event }

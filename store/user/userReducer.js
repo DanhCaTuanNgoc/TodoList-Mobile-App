@@ -13,15 +13,12 @@ const userSlice = createSlice({
    reducers: {
       setUID: (state, action) => {
          state.uid = action.payload
-         console.log('dispatch UID :', state.uid)
       },
       setName: (state, aciton) => {
          state.name = aciton.payload
-         console.log('name:', aciton.payload)
       },
       setUUID: (state, action) => {
          state.uuid = action.payload
-         console.log('dispatch UUID :', state.uuid)
       },
       mergeUID: (state, action) => {
          state.uid = action.payload

@@ -47,7 +47,7 @@ A modern and feature-rich task management mobile application built with React Na
 1. Clone the repository
 
    ```bash
-   git clone [your-repo-link]
+   git clone [https://github.com/DanhCaTuanNgoc/TodoList-Mobile-App.git]
    ```
 
 2. Install dependencies
@@ -133,6 +133,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📧 Contact
 
--  Email: [Your Email]
--  LinkedIn: [Your LinkedIn]
--  Portfolio: [Your Portfolio]
+-  Email: [ngoctuan090904@gmail.com]
+-  LinkedIn: [...]
+-  Portfolio: [...]
